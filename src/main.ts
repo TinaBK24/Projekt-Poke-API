@@ -2,18 +2,18 @@ import './style.css'
 
 import { IPokemon, IResults } from './interfaces/IPokemon';
 import { IPokemonInfo, IType } from './interfaces/IPokemonInfo';
+import { ITypesInfo } from './interfaces/ITypesInfo';
 
 
 const BASE_URL = "https://pokeapi.co";
 
 const pokemonInput = document.getElementById('pokemonInput') as HTMLInputElement;
-const btn = document.querySelectorAll('button') as NodeListOf<HTMLButtonElement>;
 const pokemonList = document.getElementById('pokemonList') as HTMLDivElement;
 
 function createPokemons(pokemon: IResults, pokemonId: number, pokemonTypes: string[]){
   const pokemonContainer = document.createElement('div') as HTMLDivElement;
 
-  const typeBtn = pokemonTypes.map(type => `<button>${type}</button>`).join("")
+  const typeBtn = pokemonTypes.map(type => `<button class="type-btn ${type}" type="button">${type}</button>`).join("")
 
   pokemonContainer.innerHTML = `
     <img src="" alt="${pokemon.name}">
@@ -25,7 +25,23 @@ function createPokemons(pokemon: IResults, pokemonId: number, pokemonTypes: stri
     </p>
   `
 
-  pokemonList.appendChild(pokemonContainer)
+  pokemonList.appendChild(pokemonContainer);
+
+  const buttons = document.querySelectorAll('.type-btn') as NodeListOf<HTMLButtonElement>;
+  buttons.forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const typeName = btn.textContent?.trim().toLowerCase();
+      
+      if(typeName){
+        const typeId = await fetchTypeIdByName(typeName)
+        console.log(`${BASE_URL}/api/v2/type/${typeId}`);
+        
+      } else {
+        console.error("Error");
+        
+      }
+    })
+  })
 }
 
 
@@ -34,7 +50,7 @@ const fetchPokemonInfo = async (pokemon: IResults) => {
   const data: IPokemonInfo = await response.json();
 
   const types = data.types.map((typeInfo: IType) => typeInfo.type.name)
-  return {id: data.id, types}
+  return {pokemonsId: data.id, types}
 }
 
 
@@ -43,11 +59,35 @@ const fetchAllPokemons = async () => {
   pokemonList.innerHTML = "";
   const response = await fetch(pokemonsURL);
   const data: IPokemon = await response.json();
-  console.log(data.results);
 
   for (const pokemon of data.results){
-    const {id, types} = await fetchPokemonInfo(pokemon);
-    createPokemons(pokemon, id, types)
+    const {pokemonsId, types} = await fetchPokemonInfo(pokemon);
+    createPokemons(pokemon, pokemonsId, types)
   }
 }
 fetchAllPokemons()
+
+
+const fetchTypesInfo = async (type: IResults) => {
+  const response = await fetch(type.url);
+  const data: ITypesInfo = await response.json();
+
+  return data.id
+}
+
+
+const fetchTypeIdByName = async (typeName: string): Promise<number | undefined> => {
+  let typesURL = `${BASE_URL}/api/v2/type`;
+  const response = await fetch(typesURL);
+  const data: IPokemon = await response.json();
+
+  const type = data.results.find((t: IResults) => t.name === typeName);
+
+  if(type){
+    const typeId = await fetchTypesInfo(type);
+    return typeId
+  }
+}
+
+
+

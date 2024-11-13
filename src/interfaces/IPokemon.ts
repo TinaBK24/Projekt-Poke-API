@@ -1,5 +1,3 @@
-import { IPokemonInfo } from "./IPokemonInfo";
-
 export interface IPokemon {
     count: number;
     next: string;
@@ -10,5 +8,4 @@ export interface IPokemon {
 export interface IResults {
     name: string;
     url: string;
-    pokemonInfo: IPokemonInfo
 }
