@@ -1,6 +1,6 @@
 import './style.css'
 
-import { IResults } from './interfaces/IPokemon';
+import { IPokemon, IResults } from './interfaces/IPokemon';
 import { IType } from './interfaces/IPokemonInfo';
 
 
@@ -11,9 +11,9 @@ const btn = document.querySelectorAll('button') as NodeListOf<HTMLButtonElement>
 const pokemonList = document.getElementById('pokemonList') as HTMLDivElement;
 
 function createPokemons(pokemon: IResults){
-  const newsPokemon = document.createElement('div') as HTMLDivElement;
+  const pokemonContainer = document.createElement('div') as HTMLDivElement;
 
-  newsPokemon.innerHTML = `
+  pokemonContainer.innerHTML = `
     <img src="" alt="${pokemon.name}">
     <div>
       
@@ -23,7 +23,18 @@ function createPokemons(pokemon: IResults){
     </p>
   `
 
-  pokemonList.appendChild(newsPokemon)
+  pokemonList.appendChild(pokemonContainer)
 }
 
 
+const fetchAllPokemons = async () => {
+  let pokemonsURL = `${BASE_URL}/api/v2/pokemon`;
+  pokemonList.innerHTML = "";
+  const response = await fetch(pokemonsURL);
+  const data: IPokemon = await response.json();
+  console.log(data.results);
+  data.results.forEach((pokemon: IResults) => {
+    createPokemons(pokemon)
+  })
+}
+fetchAllPokemons()
