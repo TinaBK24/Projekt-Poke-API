@@ -6,8 +6,10 @@ import { IPokemonInfo, IType } from './interfaces/IPokemonInfo';
 
 const BASE_URL = "https://pokeapi.co";
 
+const allPokemonShow = document.querySelector('a') as HTMLAnchorElement;
 const pokemonInput = document.getElementById('pokemonInput') as HTMLInputElement;
 const pokemonList = document.getElementById('pokemonList') as HTMLDivElement;
+
 
 let allPokemons: { pokemon: IResults; id: number; types: string[], image: string }[] = [];
 
@@ -27,19 +29,6 @@ function createPokemons(pokemon: IResults, pokemonId: number, pokemonTypes: stri
   `
 
   pokemonList.appendChild(pokemonContainer);
-
-  // const buttons = document.querySelectorAll('.type-btn') as NodeListOf<HTMLButtonElement>;
-  // buttons.forEach(btn => {
-  //   btn.addEventListener('click', async () => {
-  //     const typeName = btn.textContent?.trim().toLowerCase();
-      
-  //     if(typeName){
-  //       filterByType(typeName);
-  //       } else {
-  //         console.error("Error retrieving type name");
-  //       }
-  //   })
-  // })
 }
 
 
@@ -69,12 +58,36 @@ const fetchAllPokemons = async () => {
 fetchAllPokemons()
 
 
+allPokemonShow.addEventListener('click', () => {
+  fetchAllPokemons();
+});
+
+
 let currentFilter = "";
+
+
+function filterByName(pokemonName: string){
+  pokemonList.innerHTML = "";
+  const filteredPokemons = allPokemons.filter(name => name.pokemon.name.includes(pokemonName));
+  filteredPokemons.forEach(({ pokemon, id, types, image }) => createPokemons(pokemon, id, types, image));
+  currentFilter = pokemonName;
+}
+
+
+pokemonInput?.addEventListener('input', () => {
+  const pokemonValue = pokemonInput.value.trim().toLowerCase();
+  
+  if (pokemonValue) {
+    filterByName(pokemonValue);
+  } else {
+    console.error("Error retrieving name");
+  }
+})
 
 
 function filterByType(typeName: string) {
   pokemonList.innerHTML = "";
-  const filteredPokemons = allPokemons.filter(p => p.types.includes(typeName));
+  const filteredPokemons = allPokemons.filter(pokemon => pokemon.types.includes(typeName));
   filteredPokemons.forEach(({ pokemon, id, types, image }) => createPokemons(pokemon, id, types, image));
   currentFilter = typeName;
 }
