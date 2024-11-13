@@ -71,7 +71,6 @@ function filterByName(pokemonName: string){
   pokemonList.innerHTML = "";
   const filteredPokemons = allPokemons.filter(name => name.pokemon.name.includes(pokemonName));
   filteredPokemons.forEach(({ pokemon, id, types, image }) => createPokemons(pokemon, id, types, image));
-  currentFilter = pokemonName;
 }
 
 
