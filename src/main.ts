@@ -16,16 +16,16 @@ let allPokemons: { pokemon: IResults; id: number; types: string[], image: string
 function createPokemons(pokemon: IResults, pokemonId: number, pokemonTypes: string[], pokemonImg: string){
   const pokemonContainer = document.createElement('div') as HTMLDivElement;
 
-  const typeBtn = pokemonTypes.map(type => `<button class="type-btn ${type}" type="button">${type}</button>`).join("")
+  const typeBtn = pokemonTypes.map(type => `<button class="type-btn ${type}" type="button">${type.toUpperCase()}</button>`).join("");
+
+  const correctedName = `#${String(pokemonId).padStart(3, "0")} ${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1).toLowerCase()}`;  
 
   pokemonContainer.innerHTML = `
     <img src="${pokemonImg}" alt="${pokemon.name}">
     <div>
       ${typeBtn}
     </div>
-    <p>
-      #${String(pokemonId).padStart(3, "0")} ${pokemon.name}
-    </p>
+    <p>${correctedName}</p>
   `
 
   pokemonList.appendChild(pokemonContainer);
@@ -44,7 +44,7 @@ const fetchPokemonInfo = async (pokemon: IResults) => {
 
 
 const fetchAllPokemons = async () => {
-  let pokemonsURL = `${BASE_URL}/api/v2/pokemon?limit=100`;
+  let pokemonsURL = `${BASE_URL}/api/v2/pokemon?limit=999`;
   pokemonList.innerHTML = "";
   const response = await fetch(pokemonsURL);
   const data: IPokemon = await response.json();
@@ -64,6 +64,7 @@ allPokemonShow.addEventListener('click', () => {
 
 
 let currentFilter = "";
+console.log(currentFilter);
 
 
 function filterByName(pokemonName: string){
@@ -80,7 +81,7 @@ pokemonInput?.addEventListener('input', () => {
   if (pokemonValue) {
     filterByName(pokemonValue);
   } else {
-    console.error("Error retrieving name");
+    fetchAllPokemons();
   }
 })
 
