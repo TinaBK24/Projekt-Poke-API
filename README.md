@@ -35,6 +35,6 @@ Hier sind einige Screenshots der Anwendung:
 - **Suchergebnisse und Pokémon-Filter**  
   ![Screenshot der Suchergebnisse und Filter](/src/img/FilterPage.png)
 
-  ## Autoren
+## Autoren
 
 Dieses Projekt wurde erstellt von **TinaBK24** und **Neco-Stack**.
