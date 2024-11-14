@@ -6,11 +6,12 @@ import { IPokemonInfo, IType } from './interfaces/IPokemonInfo';
 
 const BASE_URL = "https://pokeapi.co";
 
-const allPokemonShow = document.querySelector('a') as HTMLAnchorElement;
+const homePokemonShow = document.querySelector('a') as HTMLAnchorElement;
 const pokemonInput = document.getElementById('pokemonInput') as HTMLInputElement;
 const pokemonList = document.getElementById('pokemonList') as HTMLDivElement;
 
 
+let homePokemons: { pokemon: IResults; id: number; types: string[], image: string }[] = [];
 let allPokemons: { pokemon: IResults; id: number; types: string[], image: string }[] = [];
 
 function createPokemons(pokemon: IResults, pokemonId: number, pokemonTypes: string[], pokemonImg: string){
@@ -18,7 +19,7 @@ function createPokemons(pokemon: IResults, pokemonId: number, pokemonTypes: stri
 
   const typeBtn = pokemonTypes.map(type => `<button class="type-btn ${type}" type="button">${type.toUpperCase()}</button>`).join("");
 
-  const correctedName = `#${String(pokemonId).padStart(3, "0")} ${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1).toLowerCase()}`;  
+  const correctedName = `#${String(pokemonId).padStart(4, "0")} ${pokemon.name.toUpperCase()}`;  
 
   pokemonContainer.innerHTML = `
     <img src="${pokemonImg}" alt="${pokemon.name}">
@@ -43,8 +44,23 @@ const fetchPokemonInfo = async (pokemon: IResults) => {
 }
 
 
+const fetchHomePokemons = async () => {
+  let pokemonsURL = `${BASE_URL}/api/v2/pokemon`;
+  pokemonList.innerHTML = "";
+  const response = await fetch(pokemonsURL);
+  const data: IPokemon = await response.json();
+
+  for (const pokemon of data.results){
+    const {pokemonsId, types, image} = await fetchPokemonInfo(pokemon);
+    homePokemons.push({ pokemon, id: pokemonsId, types, image });
+    createPokemons(pokemon, pokemonsId, types, image)
+  }
+}
+fetchHomePokemons()
+
+
 const fetchAllPokemons = async () => {
-  let pokemonsURL = `${BASE_URL}/api/v2/pokemon?limit=999`;
+  let pokemonsURL = `${BASE_URL}/api/v2/pokemon?limit=100000&offset=0`;
   pokemonList.innerHTML = "";
   const response = await fetch(pokemonsURL);
   const data: IPokemon = await response.json();
@@ -52,14 +68,13 @@ const fetchAllPokemons = async () => {
   for (const pokemon of data.results){
     const {pokemonsId, types, image} = await fetchPokemonInfo(pokemon);
     allPokemons.push({ pokemon, id: pokemonsId, types, image });
-    createPokemons(pokemon, pokemonsId, types, image)
   }
 }
 fetchAllPokemons()
 
 
-allPokemonShow.addEventListener('click', () => {
-  fetchAllPokemons();
+homePokemonShow.addEventListener('click', () => {
+  fetchHomePokemons();
 });
 
 
@@ -80,7 +95,7 @@ pokemonInput?.addEventListener('input', () => {
   if (pokemonValue) {
     filterByName(pokemonValue);
   } else {
-    fetchAllPokemons();
+    fetchHomePokemons();
   }
 })
 
